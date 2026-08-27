@@ -1,7 +1,14 @@
 #makes program called pendulum_firmware from main.cpp
 add_executable(pendulum_firmware
     src/main.cpp
+    src/encoder.cpp
 )
+
+target_include_directories(pendulum_firmware
+    PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/include
+)
+
 #gives pendulum_firmware access to the pico libraries
 target_link_libraries(pendulum_firmware
     pico_stdlib
