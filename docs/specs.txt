@@ -1,0 +1,6 @@
+Encoder: LPD 3806
+600 Pulses per revolution per phase = 
+2400 counts/revolution
+One count = 360deg/2400 = 0.15deg = pi/1200 rad = 0.002618 rad/count
+
+

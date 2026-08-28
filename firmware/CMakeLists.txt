@@ -3,6 +3,7 @@ add_executable(pendulum_firmware
     src/main.cpp
     src/encoder.cpp
     src/velocity_estimator.cpp
+    src/motor.cpp
 )
 
 target_include_directories(pendulum_firmware
@@ -16,7 +17,7 @@ target_link_libraries(pendulum_firmware
 )
 
 pico_enable_stdio_usb(pendulum_firmware 1)
-pico_enable_stdio_usb(pendulum_firmware 0)
+pico_enable_stdio_uart(pendulum_firmware 0)
 
 
 # lets CMake generate pendulum_firmware.uf2, .elf, .bin, and .hex files for flashing
