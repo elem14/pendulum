@@ -14,6 +14,8 @@ target_include_directories(pendulum_firmware
 #gives pendulum_firmware access to the pico libraries
 target_link_libraries(pendulum_firmware
     pico_stdlib
+    hardware_pwm
+    hardware_clocks
 )
 
 pico_enable_stdio_usb(pendulum_firmware 1)
