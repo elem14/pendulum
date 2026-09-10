@@ -4,49 +4,57 @@
 
 #include <stdio.h>
 
-void run_motor_for(float target_velocity_rad_s, uint32_t duration_ms) {
-    motor_set_target_angular_velocity(target_velocity_rad_s);
 
-    uint64_t start_time_us = time_us_64();
-    uint64_t previous_time_us = start_time_us;
-    uint64_t previous_print_time_us = start_time_us;
+void run_motor_for(
+    float target_velocity_rad_s,
+    uint32_t duration_ms
+) {
+    motor_set_target_angular_velocity(
+        target_velocity_rad_s
+    );
 
-    while (time_us_64() - start_time_us < static_cast<uint64_t>(duration_ms) * 1000) {
-        uint64_t current_time_us = time_us_64();
-        uint64_t delta_time_us = current_time_us - previous_time_us;
+    uint64_t start_time_us =
+        time_us_64();
 
-        previous_time_us = current_time_us;
+    uint64_t previous_time_us =
+        start_time_us;
 
-        float dt_seconds = static_cast<float>(delta_time_us) * 1.0e-6f;
+    while (
+        time_us_64() - start_time_us
+        <
+        static_cast<uint64_t>(duration_ms) * 1000
+    ) {
+        uint64_t current_time_us =
+            time_us_64();
 
-        motor_update(dt_seconds);
+        uint64_t delta_time_us =
+            current_time_us
+            - previous_time_us;
 
-        if (current_time_us - previous_print_time_us >= 10000) {
-            printf(
-                "target: %6.3f | "
-                "est omega: %6.3f | "
-                "est theta: %8.4f | "
-                "STEP: %8.2f Hz\n",
+        previous_time_us =
+            current_time_us;
 
-                motor_get_target_angular_velocity(),
-                motor_get_estimated_velocity_rad_s(),
-                motor_get_estimated_position_rad(),
-                motor_get_step_frequency()
-            );
+        float dt_seconds =
+            static_cast<float>(
+                delta_time_us
+            )
+            * 1.0e-6f;
 
-            previous_print_time_us = current_time_us;
-        }
+        motor_update(
+            dt_seconds
+        );
 
         sleep_ms(1);
     }
 }
+
 
 void test_speed(
     float speed_rad_s,
     uint32_t hold_ms
 ) {
     printf(
-        "\n=== Testing %.2f rad/s ===\n",
+        "\nTesting %.2f rad/s\n",
         speed_rad_s
     );
 
@@ -56,7 +64,7 @@ void test_speed(
         hold_ms
     );
 
-    // Ramp to zero and remain stopped
+    // Ramp to zero
     run_motor_for(
         0.0f,
         1500
@@ -82,55 +90,54 @@ void test_speed(
 
 
 int main() {
-    /*stdio_init_all();
+    stdio_init_all();
+
     motor_init();
-    motor_set_limits(6.0f, 10.0f); //max v, max a
+
+    motor_set_limits(
+        10.0f,   // max velocity for this test
+        5.0f    // gentle acceleration
+    );
 
     sleep_ms(2000);
-    printf("\nMotor model test\n");
+
+    printf(
+        "\ncart displacement test starting\n"
+    );
 
     motor_enable();
 
     sleep_ms(100);
 
-    motor_set_zero_position(); //current shaft orientation is theta_m = 0
+    motor_set_zero_position();
 
-    printf("\nStarting position: %.4f rad\n", motor_get_estimated_position_rad());
+    printf("Moving exactly 2 motor revolutions...\n");
 
-    printf("\nCommanding +2 rad/s for 3 seconds\n");
+    motor_move_steps_blocking(
+        3200,   // 1600 steps/rev × 2 rev
+        1000    // safe half-period in microseconds
+    );
 
-    run_motor_for(10.0f, 5000);
+    printf(
+        "Estimated motor position: %.4f rad\n",
+        motor_get_estimated_position_rad()
+    );
 
-    printf("\nCommanding stop\n");
+    printf("Movement finished\n");
 
-    run_motor_for(0.0f, 1000);
+    // actual test call
+    /*test_speed(
+        8.0f,
+        10000
+    );
 
-
-    printf("\nAfter forward test:\n");
-
-    printf("Estimated position: %.4f rad\n", motor_get_estimated_position_rad());
-
-    //reverse same motion
-
-    printf("\nCommanding -2 rad/s for 3 seconds\n");
-
-    run_motor_for(-10.0f, 5000);
-
-    printf("\nCommanding stop\n");
-
-    run_motor_for(0.0f, 1000);
-
-    printf("\nFinal estimated position: %.4f rad\n", motor_get_estimated_position_rad());
+    printf(
+        "\nTest finished\n"
+    );*/
 
     motor_disable();
 
     while (true) {
         sleep_ms(1000);
     }
-    */
-
-    motor_enable();
-    motor_set_zero_position();
-
-    test_speed(2.0f, 3000);
 }

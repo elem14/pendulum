@@ -268,6 +268,43 @@ void motor_stop() {
     estimated_velocity_rad_s = 0.0f;
 }
 
+void motor_move_steps_blocking(int32_t steps, uint32_t half_period_us) {
+    if (!driver_enabled || steps == 0) {
+        return;
+    }
+    //stop hardware pwm first
+    stop_step_signal();
+
+    bool forward = steps > 0;
+
+    gpio_put(DIR_PIN, forward ? 1: 0);
+
+    sleep_us(DIR_SETTLE_US);
+
+    uint32_t step_count = steps > 0 ? static_cast<uint32_t>(steps) : static_cast<uint32_t>(-steps);
+
+    //STEP needs to be normal GPIO for manual pulses
+    gpio_set_function(STEP_PIN, GPIO_FUNC_SIO);
+
+    gpio_set_dir(STEP_PIN, GPIO_OUT);
+
+    gpio_put(STEP_PIN, 0);
+
+    for (uint32_t i = 0; i < step_count; i++) {
+        gpio_put(STEP_PIN, 1);
+        sleep_us(half_period_us);
+        gpio_put(STEP_PIN, 0);
+        sleep_us(half_period_us);
+    }
+
+    //update software pose estimate
+    float signed_angle = static_cast<float>(steps) * TWO_PI / STEPS_PER_REV;
+
+    estimated_position_rad += signed_angle;
+
+    estimated_velocity_rad_s = 0.0f;
+}
+
 void motor_set_limits(float new_max_velocity_rad_s, float new_max_acceleration_rad_s2) {
     if (new_max_velocity_rad_s > 0.0f) {
         max_velocity_rad_s = new_max_velocity_rad_s;

@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 void motor_init();
 
@@ -6,6 +7,8 @@ void motor_enable();
 void motor_disable();
 
 void motor_stop();
+
+void motor_move_steps_blocking(int32_t steps, uint32_t half_period_us);
 
 void motor_set_limits(float max_velocity_rad_s, float max_acceleration_rad_s2);
 
