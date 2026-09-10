@@ -123,7 +123,31 @@ int main() {
         motor_get_estimated_position_rad()
     );
 
+    printf(
+        "Estimated cart position: %.4f m\n",
+        motor_get_estimated_cart_position_m()
+    );
+
     printf("Movement finished\n");
+
+    printf("Returning exactly 2 motor revolutions...\n");
+
+    motor_move_steps_blocking(
+        -3200,   // exactly 2 revolutions backward
+        1000
+    );
+
+    printf(
+        "Final estimated motor position: %.4f rad\n",
+        motor_get_estimated_position_rad()
+    );
+
+    printf(
+        "Final estimated cart position: %.4f m\n",
+        motor_get_estimated_cart_position_m()
+    );
+
+    printf("Return movement finished\n");
 
     // actual test call
     /*test_speed(
