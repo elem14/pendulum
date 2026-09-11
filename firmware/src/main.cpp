@@ -186,7 +186,7 @@ int main() {
             : "NO"
     );
 
-    
+
     uint32_t chopconf = 0;
 
     if (tmc2209_read_chopconf(chopconf)) {
@@ -213,6 +213,147 @@ int main() {
     motor_enable();
 
     sleep_ms(100);
+
+    printf(
+        "\n--- Driver diagnostics after motor_enable() ---\n"
+    );
+
+    // Pico view of EN
+
+    printf(
+        "Pico GP4 level: %d\n",
+        gpio_get(4)
+    );
+
+    // TMC actual input pins
+
+    uint32_t ioin = 0;
+
+    if (tmc2209_read_ioin(ioin)) {
+
+        uint32_t tmc_enn =
+            ioin & 0x01;
+
+        uint32_t version =
+            (ioin >> 24) & 0xFF;
+
+        printf(
+            "IOIN: 0x%08lx\n",
+            static_cast<unsigned long>(ioin)
+        );
+
+        printf(
+            "TMC ENN input: %lu (%s)\n",
+            static_cast<unsigned long>(tmc_enn),
+            tmc_enn == 0
+                ? "ENABLED"
+                : "DISABLED"
+        );
+
+        printf(
+            "TMC version: 0x%02lx\n",
+            static_cast<unsigned long>(version)
+        );
+    }
+    else {
+        printf(
+            "ERROR: Could not read IOIN\n"
+        );
+    }
+
+    // Global faults
+
+    uint32_t gstat = 0;
+
+    if (tmc2209_read_gstat(gstat)) {
+
+        bool driver_error =
+            (gstat & (1u << 1)) != 0;
+
+        bool undervoltage =
+            (gstat & (1u << 2)) != 0;
+
+        printf(
+            "GSTAT: 0x%08lx\n",
+            static_cast<unsigned long>(gstat)
+        );
+
+        printf(
+            "Driver error: %s\n",
+            driver_error ? "YES" : "NO"
+        );
+
+        printf(
+            "Charge-pump undervoltage: %s\n",
+            undervoltage ? "YES" : "NO"
+        );
+    }
+    else {
+        printf(
+            "ERROR: Could not read GSTAT\n"
+        );
+    }
+
+    // Actual driver status
+
+    uint32_t drv_status = 0;
+
+    if (tmc2209_read_drv_status(
+            drv_status
+        )) {
+
+        bool stealth =
+            (drv_status & (1u << 30)) != 0;
+
+        uint32_t cs_actual =
+            (drv_status >> 16) & 0x1F;
+
+        uint32_t short_flags =
+            (drv_status >> 2) & 0x0F;
+
+        bool overtemperature =
+            (drv_status & (1u << 1)) != 0;
+
+        printf(
+            "DRV_STATUS: 0x%08lx\n",
+            static_cast<unsigned long>(
+                drv_status
+            )
+        );
+
+        printf(
+            "Actual chopper mode: %s\n",
+            stealth
+                ? "StealthChop"
+                : "SpreadCycle"
+        );
+
+        printf(
+            "CS_ACTUAL: %lu\n",
+            static_cast<unsigned long>(
+                cs_actual
+            )
+        );
+
+        printf(
+            "Short-circuit flags: 0x%lx\n",
+            static_cast<unsigned long>(
+                short_flags
+            )
+        );
+
+        printf(
+            "Overtemperature shutdown: %s\n",
+            overtemperature
+                ? "YES"
+                : "NO"
+        );
+    }
+    else {
+        printf(
+            "ERROR: Could not read DRV_STATUS\n"
+        );
+    }
 
     test_loaded_acceleration(5.0f); 
 

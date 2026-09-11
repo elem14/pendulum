@@ -28,6 +28,10 @@ constexpr uint8_t REG_GCONF = 0x00;
 // Chop config address
 constexpr uint8_t REG_CHOPCONF = 0x6C;
 
+constexpr uint8_t REG_IOIN = 0x06;
+constexpr uint8_t REG_GSTAT = 0x01;
+constexpr uint8_t REG_DRV_STATUS = 0x6F;
+
 //GCONF bits
 constexpr uint32_t GCONF_EN_SPREADCYCLE = (1u << 2);
 
@@ -259,4 +263,18 @@ bool tmc2209_is_spreadcycle_enabled() {
 bool tmc2209_read_chopconf(uint32_t& value) {
     return read_register(REG_CHOPCONF, value);
 }
+
+bool tmc2209_read_ioin(uint32_t& value) {
+    return read_register(REG_IOIN, value);
+}
+
+bool tmc2209_read_gstat(uint32_t& value) {
+    return read_register(REG_GSTAT, value);
+}
+
+bool tmc2209_read_drv_status(uint32_t& value) {
+    return read_register(REG_DRV_STATUS, value);
+}
+
+
 

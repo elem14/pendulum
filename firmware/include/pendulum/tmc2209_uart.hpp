@@ -7,3 +7,9 @@ bool tmc2209_init_spreadcycle();
 bool tmc2209_is_spreadcycle_enabled();
 
 bool tmc2209_read_chopconf(uint32_t& value);
+
+bool tmc2209_read_ioin(uint32_t& value);
+
+bool tmc2209_read_gstat(uint32_t& value);
+
+bool tmc2209_read_drv_status(uint32_t& value);
