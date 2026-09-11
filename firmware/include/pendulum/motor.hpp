@@ -25,6 +25,9 @@ float motor_get_step_frequency();
 float motor_get_estimated_position_rad();
 float motor_get_estimated_velocity_rad_s();
 
+float motor_get_estimated_cart_position_m();
+float motor_get_estimated_cart_velocity_m_s();
+
 
 
 bool motor_is_enabled();

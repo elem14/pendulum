@@ -1,6 +1,7 @@
 #include "pico/stdlib.h"
 
 #include "pendulum/motor.hpp"
+#include "pendulum/tmc2209_uart.hpp"
 
 #include <stdio.h>
 
@@ -86,7 +87,63 @@ void test_speed(
         "Estimated position after round trip: %.4f rad\n",
         motor_get_estimated_position_rad()
     );
+
 }
+
+
+void test_loaded_acceleration(float acceleration_rad_s2) {
+    constexpr float TEST_SPEED_RAD_S = 5.0f;
+
+    constexpr uint32_t COMMAND_TIME_MS = 4000;
+
+    motor_set_limits(TEST_SPEED_RAD_S, acceleration_rad_s2);
+
+    motor_set_zero_position();
+
+    uint32_t stop_time_ms = static_cast<uint32_t>(
+        (TEST_SPEED_RAD_S / acceleration_rad_s2) * 1000.0f
+    ) + 500;
+
+    printf("\n=== Loaded acceleration test ===\n");
+
+    printf("Acceleration: %.2f rad/s^2\n", acceleration_rad_s2);
+
+    //forward
+
+    run_motor_for(
+        TEST_SPEED_RAD_S,
+        COMMAND_TIME_MS
+    );
+
+    run_motor_for(
+        0.0f,
+        stop_time_ms
+    );
+
+    printf(
+        "Forward position: %.4f rad\n",
+        motor_get_estimated_cart_position_m()
+    );
+
+    //reverse
+
+    run_motor_for(
+        -TEST_SPEED_RAD_S,
+        COMMAND_TIME_MS
+    );
+
+    run_motor_for(
+        0.0f,
+        stop_time_ms
+    );
+
+    printf(
+        "Final position: %.4f m\n",
+        motor_get_estimated_cart_position_m()
+    );
+}
+
+
 
 
 int main() {
@@ -109,7 +166,14 @@ int main() {
 
     sleep_ms(100);
 
-    motor_set_zero_position();
+    test_loaded_acceleration(5.0f); 
+
+    printf("\nAcceleration test complete\n");
+
+    motor_disable();
+
+
+   /* motor_set_zero_position();
 
     printf("Moving exactly 2 motor revolutions...\n");
 
@@ -158,8 +222,6 @@ int main() {
     printf(
         "\nTest finished\n"
     );*/
-
-    motor_disable();
 
     while (true) {
         sleep_ms(1000);

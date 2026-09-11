@@ -3,4 +3,8 @@ Encoder: LPD 3806
 2400 counts/revolution
 One count = 360deg/2400 = 0.15deg = pi/1200 rad = 0.002618 rad/count
 
+make build:
+cmake -S . -B build -DPICO_BOARD=pico -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
+build build:
+cmake --build build -j

@@ -4,6 +4,7 @@ add_executable(pendulum_firmware
     src/encoder.cpp
     src/velocity_estimator.cpp
     src/motor.cpp
+    src/tmc2209_uart.cpp
 )
 
 target_include_directories(pendulum_firmware
@@ -16,6 +17,7 @@ target_link_libraries(pendulum_firmware
     pico_stdlib
     hardware_pwm
     hardware_clocks
+    hardware_uart
 )
 
 pico_enable_stdio_usb(pendulum_firmware 1)

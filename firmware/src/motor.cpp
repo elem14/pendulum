@@ -17,6 +17,10 @@ constexpr float STEPS_PER_REV = 1600.0f;
 
 constexpr float TWO_PI = 6.28318530717958647692f;
 
+constexpr float CART_METERS_PER_MOTOR_REV = 0.072f;
+
+constexpr float CART_METERS_PER_MOTOR_RAD = CART_METERS_PER_MOTOR_REV / TWO_PI;
+
 //slow pwm counter way way down from the sys clock
 //clock sys 125 MHz -- 125 / 250 = 500 kHz counterclock
 constexpr float PWM_CLKDIV = 250.0f; //Clock D
@@ -404,6 +408,16 @@ float motor_get_estimated_position_rad() {
 
 float motor_get_estimated_velocity_rad_s() {
     return estimated_velocity_rad_s;
+}
+
+float motor_get_estimated_cart_position_m() {
+    return
+        estimated_position_rad * CART_METERS_PER_MOTOR_RAD;
+}
+
+float motor_get_estimated_cart_velocity_m_s() {
+    return
+        estimated_velocity_rad_s * CART_METERS_PER_MOTOR_RAD;
 }
 
 bool motor_is_enabled() {
