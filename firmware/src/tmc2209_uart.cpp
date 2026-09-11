@@ -12,7 +12,7 @@
 
 namespace {
 
-constexpr uart_inst_t* TMC_UART = uart1;
+uart_inst_t* const TMC_UART = uart1;
 
 constexpr uint UART_TX_PIN = 8;
 constexpr uint UART_RX_PIN = 9;
@@ -24,6 +24,9 @@ constexpr uint8_t TMC_ADDRESS = 0;
 
 //TMC2209 register address
 constexpr uint8_t REG_GCONF = 0x00;
+
+// Chop config address
+constexpr uint8_t REG_CHOPCONF = 0x6C;
 
 //GCONF bits
 constexpr uint32_t GCONF_EN_SPREADCYCLE = (1u << 2);
@@ -252,3 +255,8 @@ bool tmc2209_init_spreadcycle() {
 bool tmc2209_is_spreadcycle_enabled() {
     return spreadcycle_enabled;
 }
+
+bool tmc2209_read_chopconf(uint32_t& value) {
+    return read_register(REG_CHOPCONF, value);
+}
+

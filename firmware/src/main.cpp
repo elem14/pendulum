@@ -151,6 +151,54 @@ int main() {
 
     motor_init();
 
+    sleep_ms(10000);
+
+    printf(
+        "\nConfiguring TMC2209 UART...\n"
+    );
+
+    bool tmc_uart_ok =
+        tmc2209_init_spreadcycle();
+
+
+    if (!tmc_uart_ok) {
+
+        printf(
+            "ERROR: TMC2209 UART configuration failed\n"
+        );
+
+        motor_disable();
+
+        while (true) {
+            sleep_ms(1000);
+        }
+    }
+
+
+    printf(
+        "TMC2209 UART communication successful\n"
+    );
+
+    printf(
+        "SpreadCycle enabled: %s\n",
+        tmc2209_is_spreadcycle_enabled()
+            ? "YES"
+            : "NO"
+    );
+
+    
+    uint32_t chopconf = 0;
+
+    if (tmc2209_read_chopconf(chopconf)) {
+        uint32_t toff = chopconf & 0x0F;
+        printf("CHOPCONF: 0x%08lx\n", static_cast<unsigned long>(chopconf));
+        printf("TOFF: %lu\n", static_cast<unsigned long>(toff));
+    }
+    else {
+        printf("ERROR: Could not read CHOPCONF\n");
+    }
+
+
     motor_set_limits(
         10.0f,   // max velocity for this test
         5.0f    // gentle acceleration
