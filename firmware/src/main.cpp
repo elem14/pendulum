@@ -20,6 +20,8 @@ void run_motor_for(
     uint64_t previous_time_us =
         start_time_us;
 
+    uint64_t previous_diagnostic_time_us = start_time_us;
+
     while (
         time_us_64() - start_time_us
         <
@@ -44,6 +46,49 @@ void run_motor_for(
         motor_update(
             dt_seconds
         );
+
+        if (
+            current_time_us
+            - previous_diagnostic_time_us
+            >= 250000
+        ) {
+            uint32_t tstep = 0;
+            uint32_t drv_status = 0;
+
+            if (
+                tmc2209_read_tstep(tstep)
+                &&
+                tmc2209_read_drv_status(
+                    drv_status
+                )
+            ) {
+                uint32_t cs_actual =
+                    (drv_status >> 16)
+                    & 0x1F;
+
+                printf(
+                    "target: %.2f | "
+                    "TSTEP: %lu | "
+                    "CS_ACTUAL: %lu | "
+                    "STEP freq: %.1f Hz\n",
+
+                    target_velocity_rad_s,
+
+                    static_cast<unsigned long>(
+                        tstep
+                    ),
+
+                    static_cast<unsigned long>(
+                        cs_actual
+                    ),
+
+                    motor_get_step_frequency()
+                );
+            }
+
+            previous_diagnostic_time_us =
+                current_time_us;
+        }
 
         sleep_ms(1);
     }
@@ -92,9 +137,9 @@ void test_speed(
 
 
 void test_loaded_acceleration(float acceleration_rad_s2) {
-    constexpr float TEST_SPEED_RAD_S = 5.0f;
+    constexpr float TEST_SPEED_RAD_S = 20.0f;
 
-    constexpr uint32_t COMMAND_TIME_MS = 4000;
+    constexpr uint32_t COMMAND_TIME_MS = 3000;
 
     motor_set_limits(TEST_SPEED_RAD_S, acceleration_rad_s2);
 
@@ -121,7 +166,7 @@ void test_loaded_acceleration(float acceleration_rad_s2) {
     );
 
     printf(
-        "Forward position: %.4f rad\n",
+        "Forward position: %.4f m\n",
         motor_get_estimated_cart_position_m()
     );
 
@@ -200,8 +245,8 @@ int main() {
 
 
     motor_set_limits(
-        10.0f,   // max velocity for this test
-        5.0f    // gentle acceleration
+        20.0f,   // max velocity
+        500.0f    // max acceleration
     );
 
     sleep_ms(2000);
@@ -355,7 +400,7 @@ int main() {
         );
     }
 
-    test_loaded_acceleration(5.0f); 
+    test_loaded_acceleration(500.0f); 
 
     printf("\nAcceleration test complete\n");
 

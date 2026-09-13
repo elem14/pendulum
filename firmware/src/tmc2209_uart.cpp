@@ -22,15 +22,13 @@ constexpr uint32_t UART_BAUD = 115200;
 constexpr uint8_t TMC_ADDRESS = 0;
 
 
-//TMC2209 register address
+//TMC2209 register addresses
 constexpr uint8_t REG_GCONF = 0x00;
-
-// Chop config address
 constexpr uint8_t REG_CHOPCONF = 0x6C;
-
 constexpr uint8_t REG_IOIN = 0x06;
 constexpr uint8_t REG_GSTAT = 0x01;
 constexpr uint8_t REG_DRV_STATUS = 0x6F;
+constexpr uint8_t REG_TSTEP = 0x12;
 
 //GCONF bits
 constexpr uint32_t GCONF_EN_SPREADCYCLE = (1u << 2);
@@ -275,6 +273,12 @@ bool tmc2209_read_gstat(uint32_t& value) {
 bool tmc2209_read_drv_status(uint32_t& value) {
     return read_register(REG_DRV_STATUS, value);
 }
+
+bool tmc2209_read_tstep(uint32_t& value) {
+    return read_register(REG_TSTEP, value);
+}
+
+
 
 
 

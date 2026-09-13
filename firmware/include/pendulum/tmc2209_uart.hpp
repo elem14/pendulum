@@ -13,3 +13,5 @@ bool tmc2209_read_ioin(uint32_t& value);
 bool tmc2209_read_gstat(uint32_t& value);
 
 bool tmc2209_read_drv_status(uint32_t& value);
+
+bool tmc2209_read_tstep(uint32_t& value);
