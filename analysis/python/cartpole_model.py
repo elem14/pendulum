@@ -125,3 +125,68 @@ def mechanical_energy(
 
 
     return kinetic_energy + potential_energy
+
+# create and return A B matrices
+def linearized_state_space(
+    params: CartPoleParams,
+) -> tuple[np.ndarray, np.ndarray]:
+
+    m_c = params.cart_mass_kg
+    m_p = params.pendulum_mass_kg
+
+    l_c = params.center_of_mass_length_m
+    I_p = params.pivot_inertia_kg_m2
+
+    b_x = params.cart_friction_n_s_m
+    b_theta = params.pivot_friction_n_m_s_rad
+
+    g = params.gravity_m_s2
+
+    D_0 = ((m_c + m_p) * I_p - (m_p**2) * (l_c**2))
+
+    A = np.array(
+        [
+            [
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+            ],
+
+            [
+                0.0,
+                -(I_p * b_x) / D_0,
+                -(m_p**2 * g * l_c**2) / D_0,
+                (m_p * l_c * b_theta) / D_0,
+            ],
+
+            [
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+            ],
+
+            [
+                0.0,
+                (m_p * l_c * b_x) / D_0,
+                ((m_c + m_p) * m_p * g * l_c) / D_0,
+                -((m_c + m_p) * b_theta) / D_0,
+            ],
+        ],
+        dtype=float,
+    )
+
+
+    B = np.aray(
+        [
+            [0.0],
+            [I_p / D_0],
+            [0.0],
+            [-m_p * l_c / D_0],
+        ],
+        dtype=float,
+    )
+
+
+    return A, B
