@@ -178,7 +178,7 @@ def linearized_state_space(
     )
 
 
-    B = np.aray(
+    B = np.array(
         [
             [0.0],
             [I_p / D_0],
