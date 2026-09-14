@@ -1,8 +1,6 @@
 #include "pico/stdlib.h"
 
-#include "pendulum/motor.hpp"
-#include "pendulum/state_estimator.hpp"
-#include "pendulum/tmc2209_uart.hpp"
+#include "pendulum/encoder.hpp"
 
 #include <stdio.h>
 
@@ -11,108 +9,54 @@ int main() {
 
     stdio_init_all();
 
-    motor_init();
+    encoder_init();
 
-    state_estimator_init(
-        0.02f
-    );
-
+    // Give USB serial time to connect.
     sleep_ms(2000);
 
-    printf("\nConfiguring TMC2209...\n");
 
-    if (!tmc2209_init_spreadcycle()) {
-
-        printf("ERROR: TMC2209 UART configuration failed\n");
-
-        motor_disable();
-
-        while (true) {
-            sleep_ms(1000);
-        }
-    }
+    printf("\n=== Encoder angle test ===\n");
 
     printf(
-        "TMC2209 ready — SpreadCycle enabled\n"
+        "Hold the pendulum at the position "
+        "you want to call zero.\n"
     );
 
-    motor_set_limits(
-        //non completely tested max limits
-        100.0f,  
-        100.0f
-    );
-
-
-    motor_disable();
-
-    printf("\nPlace cart at center and hold pendulum upright\n");
-
-    printf("State will zero in 3 seconds...\n");
+    printf("Zeroing in 3 seconds...\n");
 
     sleep_ms(3000);
 
 
-    state_estimator_zero();
+    encoder_set_zero();
+
+    printf("Encoder zeroed.\n\n");
 
 
-    printf("State zeroed.\n");
-
-    printf("x = 0 m, theta = 0 rad\n\n");
-
-
-    // lock cart at 0
-    motor_enable();
-
-    motor_set_target_angular_velocity(0.0f);
-
-
-    // times setup
-    uint64_t previous_update_us = time_us_64();
-
-    uint64_t previous_print_us = previous_update_us;
-
-
-    // main state estimation loop
     while (true) {
 
-        uint64_t current_time_us = time_us_64();
+        int32_t count =
+            encoder_get_count();
 
-        uint64_t delta_time_us = current_time_us - previous_update_us;
+        float angle_continuous =
+            encoder_get_angle_continuous();
 
-        previous_update_us = current_time_us;
-
-        float dt_seconds = static_cast<float>(delta_time_us) * 1.0e-6f;
-
-
-        // update motor model
-        motor_update(dt_seconds);
+        float angle_wrapped =
+            encoder_get_angle_wrapped();
 
 
-        // builds latest complete state vector
-        state_estimator_update();
+        printf(
+            "count: %ld | "
+            "continuous: %+8.4f rad | "
+            "wrapped: %+8.4f rad\n",
+
+            static_cast<long>(count),
+
+            angle_continuous,
+
+            angle_wrapped
+        );
 
 
-        // prints at 10 Hz
-        if (current_time_us - previous_print_us >= 100000) {
-
-            PendulumState state = state_estimator_get();
-
-            printf(
-                "x: %+8.4f m | "
-                "xdot: %+8.4f m/s | "
-                "theta: %+8.4f rad | "
-                "thetadot: %+8.4f rad/s\n",
-
-                state.cart_position_m,
-                state.cart_velocity_m_s,
-                state.pendulum_angle_rad,
-                state.pendulum_angular_velocity_rad_s
-            );
-
-            previous_print_us = current_time_us;
-
-        }
-
-        sleep_ms(1);
+        sleep_ms(100);
     }
 }

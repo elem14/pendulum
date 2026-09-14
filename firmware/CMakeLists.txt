@@ -5,7 +5,6 @@ add_executable(pendulum_firmware
     src/velocity_estimator.cpp
     src/motor.cpp
     src/tmc2209_uart.cpp
-    src/state_estimator.cpp
 )
 
 target_include_directories(pendulum_firmware
