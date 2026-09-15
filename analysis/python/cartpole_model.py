@@ -8,27 +8,22 @@ import numpy as np
 
 @dataclass(frozen=True)
 class CartPoleParams:
+
     cart_mass_kg: float
+
     pendulum_mass_kg: float
+
     pendulum_length_m: float
 
+    center_of_mass_length_m: float
+
+    pivot_inertia_kg_m2: float
+
     cart_friction_n_s_m: float
+
     pivot_friction_n_m_s_rad: float
 
     gravity_m_s2: float = 9.81
-
-    @property
-    def center_of_mass_length_m(self) -> float:
-        return self.pendulum_length_m / 2.0
-
-    @property
-    def pivot_inertia_kg_m2(self) -> float:
-        """
-        Moment of inertia of a uniform rod about its pivot.
-
-        I_p = (1/3) m_p L^2
-        """
-        return ((1.0 / 3.0) * self.pendulum_mass_kg * self.pendulum_length_m**2)
 
 
 def nonlinear_dynamics(
@@ -190,3 +185,45 @@ def linearized_state_space(
 
 
     return A, B
+
+
+
+def acceleration_driven_dynamics(
+    t: float,
+    state: np.ndarray,
+    cart_acceleration_m_s2: float,
+    params: CartPoleParams,
+) -> np.ndarray:
+
+    x = state[0]
+    x_dot = state[1]
+    theta = state[2]
+    theta_dot = state[3]
+
+    _ = x
+    _ = t
+
+    m_p = params.pendulum_mass_kg
+    l_c = params.center_of_mass_length_m
+    I_p = params.pivot_inertia_kg_m2
+    b_theta = params.pivot_friction_n_m_s_rad
+    g = params.gravity_m_s2
+
+    sin_theta = np.sin(theta)
+    cos_theta = np.cos(theta)
+
+
+    # Once acceleration is imposed by the actuator the pendulum equation is
+    # I_p theta_ddot + m_p l_c cos(theta) x_ddot - m_p g l_c sin(theta) + b_theta theta_dot = 0
+    # Solve for theta_ddot
+
+    theta_ddot = (m_p * g * l_c * sin_theta - b_theta * theta_dot - m_p * l_c * cos_theta * cart_acceleration_m_s2) / I_p
+
+    return np.array(
+        [
+            x_dot,
+            cart_acceleration_m_s2,
+            theta_dot,
+            theta_ddot,
+        ]
+    )

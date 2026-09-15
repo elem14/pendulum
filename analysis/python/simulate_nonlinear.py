@@ -15,12 +15,14 @@ from cartpole_model import (
 # still need to measure and replace with real values
 
 params = CartPoleParams(
-    cart_mass_kg=0.50,
-    pendulum_mass_kg=0.20,
-    pendulum_length_m=0.30,
-
+    cart_mass_kg=0.166,
+    pendulum_mass_kg=0.077,
+    pendulum_length_m=0.305196875,
+    center_of_mass_length_m=0.150196875,
+    pivot_inertia_kg_m2=0.00236594,
     cart_friction_n_s_m=0.0,
     pivot_friction_n_m_s_rad=0.0,
+    gravity_m_s2=9.81,
 )
 
 

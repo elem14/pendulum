@@ -1,10 +1,22 @@
-Encoder: LPD 3806
-600 Pulses per revolution per phase = 
-2400 counts/revolution
-One count = 360deg/2400 = 0.15deg = pi/1200 rad = 0.002618 rad/count
+Encoder: 
+2000 Pulses per revolution per phase = 
+8000 counts/revolution
+One count = 360deg/8000 = 0.045deg per count
 
 make build:
 cmake -S . -B build -DPICO_BOARD=pico -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
 build build:
 cmake --build build -j
+
+
+
+m_c = 0.166 kg
+m_p = 0.077 kg
+L = 0.305196875 m
+l_c = 0.150196875 m
+I_p = 0.00236594 kg*m^2
+b_theta = 0.000332 N*m*s/rad
+b_x = 0 //kinda temporary i guess
+g = 9.81 m/s^2
+

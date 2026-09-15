@@ -9,7 +9,7 @@ namespace {
 constexpr uint ENC_A = 26;
 constexpr uint ENC_B = 27;
 
-constexpr float COUNTS_PER_REV = 2400.0f;
+constexpr float COUNTS_PER_REV = 8000.0f;
 constexpr float TWO_PI = 6.28318530717958647692f;
 constexpr float PI = 3.14159265358979323846f;
 
@@ -41,9 +41,11 @@ void encoder_callback(uint gpio, uint32_t events) {
 void encoder_init() {
     gpio_init(ENC_A);
     gpio_set_dir(ENC_A, GPIO_IN);
+    gpio_disable_pulls(ENC_A);
 
     gpio_init(ENC_B);
     gpio_set_dir(ENC_B, GPIO_IN);
+    gpio_disable_pulls(ENC_B);
 
     last_state = (gpio_get(ENC_A) << 1) | gpio_get(ENC_B);
 
@@ -62,7 +64,7 @@ void encoder_init() {
 }
 
 int32_t encoder_get_count() {
-    return encoder_count;
+    return encoder_count - zero_count;
 }
 
 void encoder_set_zero() {
@@ -70,9 +72,7 @@ void encoder_set_zero() {
 }
 
 float encoder_get_angle_continuous() {
-    int32_t relative_count = encoder_count - zero_count; //C_rel = C_raw - C_0
-    
-    return relative_count * TWO_PI / COUNTS_PER_REV;
+    return encoder_get_count() * TWO_PI / COUNTS_PER_REV;
 }
 
 float encoder_get_angle_wrapped() {
@@ -88,8 +88,4 @@ float encoder_get_angle_wrapped() {
 
     return angle;
 }
-
-
-
-
 
